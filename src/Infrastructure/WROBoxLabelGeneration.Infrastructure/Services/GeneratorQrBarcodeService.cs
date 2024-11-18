@@ -1,6 +1,7 @@
 ﻿using BarcodeStandard;
 using SkiaSharp;
 using System.Drawing;
+using System.Net;
 using ZXing;
 using ZXing.QrCode;
 using ZXing.Windows.Compatibility;
@@ -18,6 +19,12 @@ namespace WROBoxLabelGeneration.Infrastructure.Services
         public string BarcodeBase64Image(string text, bool includeLabel = true, bool positionToLeft = false)
         {
             var data = GenerateBarcode(text, includeLabel, positionToLeft);
+            return $"data:image/png;base64,{Convert.ToBase64String(data)}";
+        }
+
+        public string ImageUrl64Image(string url)
+        {
+            var data = GetImageFromUrl(url);
             return $"data:image/png;base64,{Convert.ToBase64String(data)}";
         }
 
@@ -59,6 +66,12 @@ namespace WROBoxLabelGeneration.Infrastructure.Services
                 }
             }
             
+        }
+
+        private byte[] GetImageFromUrl(string url)
+        {
+            WebClient client = new WebClient();
+            return client.DownloadData(url);
         }
     }
 }

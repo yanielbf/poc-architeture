@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using WROBoxLabelGeneration.Domain.Enums;
+﻿using WROBoxLabelGeneration.Domain.Enums;
 using WROBoxLabelGeneration.SharedKernel;
 using WROBoxLabelGeneration.SharedKernel.Extensions;
 

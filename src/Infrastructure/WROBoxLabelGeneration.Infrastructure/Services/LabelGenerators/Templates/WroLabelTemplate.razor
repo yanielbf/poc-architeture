@@ -23,6 +23,11 @@
     {
         return @GeneratorQrBarcodeService.QrCodeBase64Image($"{Wro.RequestID} {boxNumber}");
     }
+
+    public string GetImageUrl(string url)
+    {
+        return @GeneratorQrBarcodeService.ImageUrl64Image(url);
+    }
 }
 
 <body>
@@ -132,10 +137,13 @@
                 </div>
             </div>
         </div>
-        <p style="page-break-before: always"></p>
-        <div>
-            Imagen box shipping TODO
-        </div>
+        @if (!string.IsNullOrEmpty(Wro.Boxes[i].ShippingLabelUrl))
+        {
+            <p style="page-break-before: always"></p>
+            <div>
+                <img class="bee-center bee-autowidth" src="@GetImageUrl(Wro.Boxes[i].ShippingLabelUrl)" style="max-width:300px;" />
+            </div>
+        }
         <p style="page-break-before: always"></p>
         <div class="bee-page-container">
             <div class="bee-row bee-row-0">
