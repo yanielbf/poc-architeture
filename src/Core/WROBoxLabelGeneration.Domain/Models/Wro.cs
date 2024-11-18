@@ -8,36 +8,54 @@ namespace WROBoxLabelGeneration.Models
     public class Wro
     {
         public int RequestID { get; private set; }
+        
         public DateTime InsertDate { get; private set; }
+        
         public DateTime ExpectedDateOfArrival { get; private set; }
+        
         public int? PackageType { get; private set; }
+        
         public BoxPackagingType? BoxPackagingType { get; private set; }
+        
         public string? BoxLabelURL { get; private set; }
+        
         public int UserId { get; private set; }
+        
         public int FulfillmentCenterId { get; private set; }
+        
         public User User { get; private set; }
+        
         public FulfillmentCenter FulfillmentCenter { get; private set; }
+        
         public WroOriginAddress WroOriginAddress { get; private set; }
+        
         public ICollection<WroInventoryDetail> WroInventoryDetails { get; private set; } = new List<WroInventoryDetail>();
+        
         public List<Box> Boxes { get; private set; } = new List<Box>();
+        
         public bool HasOriginAddress { get { return WroOriginAddress != null; }}
+        
         public List<int> PackingDetailIdsFromBoxes { 
             get { 
                 return Boxes.Where(box => box.PackagingDetailsId != null).Select(box => box.PackagingDetailsId!.Value).ToList(); 
             } 
         }
+        
         public string BoxLabelFileName { get { return $"{RequestID}_BoxLabel.pdf"; } }
+        
         public string DestinationAddressFirstLineForWroBoxLabel {
             get {
                 return FulfillmentCenter != null && FulfillmentCenter.FulfillmentCenterTypeId != 3 ? FulfillmentCenter.CenterName : "ShipBob, Inc.";
             }
         }
+        
         public string DestinationAddressSecondLineForWroBoxLabel
         {
             get {
                 return FulfillmentCenter != null ? FulfillmentCenter.StreetAddress1 : string.Empty;
             }
         }
+        
         public string DestinationAddressThirdLineForWroBoxLabel
         {
             get
@@ -45,6 +63,7 @@ namespace WROBoxLabelGeneration.Models
                 return FulfillmentCenter != null ? FulfillmentCenter.StreetAddress2 : string.Empty;
             }
         }
+        
         public string DestinationAddressFourthLineForWroBoxLabel
         {
             get
@@ -59,21 +78,28 @@ namespace WROBoxLabelGeneration.Models
             }
         }
         
-    public string DestinationPhoneForWroBoxLabel { get { return FulfillmentCenter != null ? FulfillmentCenter.Phone : string.Empty; } }
+        public string DestinationPhoneForWroBoxLabel { get { return FulfillmentCenter != null ? FulfillmentCenter.Phone : string.Empty; } }
+        
         public string DestinationEmailForWroBoxLabel { get { return FulfillmentCenter != null ? FulfillmentCenter.Email : string.Empty; } }
+        
         public string UserCompanyForWroBoxLabel { get { return User != null ? User.CompanyName : string.Empty; } }
+        
         public string UserEmailForWroBoxLabel { get { return User != null ? User.Email : string.Empty; } }
+        
         public string BoxPackagingTypeName { get { return BoxPackagingType != null ? BoxPackagingType.Value.GetDisplayName() : string.Empty; } }
+        
         public bool HasExpectedDateOfArrival { 
             get { 
                 return ExpectedDateOfArrival.ToString(ConstantStrings.FormatDate) != DateTime.MinValue.Date.ToString(ConstantStrings.FormatDate);
             }
         }
+        
         public string ExpectedDateOfArrivalForLabel {
             get { 
                 return ExpectedDateOfArrival.ToString(ConstantStrings.FormatDate); 
             } 
         }
+        
         public string InsertDateForLabel
         {
             get
