@@ -44,14 +44,16 @@ namespace WROBoxLabelGeneration.Models
         public string BoxLabelFileName { get { return $"{RequestID}_BoxLabel.pdf"; } }
         
         public string DestinationAddressFirstLineForWroBoxLabel {
-            get {
+            get 
+            {
                 return FulfillmentCenter != null && FulfillmentCenter.FulfillmentCenterTypeId != 3 ? FulfillmentCenter.CenterName : "ShipBob, Inc.";
             }
         }
         
         public string DestinationAddressSecondLineForWroBoxLabel
         {
-            get {
+            get 
+            {
                 return FulfillmentCenter != null ? FulfillmentCenter.StreetAddress1 : string.Empty;
             }
         }
