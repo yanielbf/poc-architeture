@@ -1,0 +1,509 @@
+﻿@using Microsoft.AspNetCore.Html
+@using WROBoxLabelGeneration.Models
+@inject GeneratorQrBarcodeService GeneratorQrBarcodeService
+
+@code {
+    [Parameter]
+    public Wro Wro { get; set; }
+
+    protected override void OnInitialized()
+    {}
+
+    public string GetBarcodeTop(int boxNumber)
+    {
+        return @GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}", false, true);
+    }
+
+    public string GetBarcode(int boxNumber)
+    {
+        return @GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}");
+    }
+
+    public string GetQrcode(int boxNumber)
+    {
+        return @GeneratorQrBarcodeService.QrCodeBase64Image($"{Wro.RequestID} {boxNumber}");
+    }
+}
+
+<body>
+    <div class="bee-page-container page1">
+        <h1>
+            Please affix the following label on the last row of the container
+            for us to scan the label.
+        </h1>
+        <h2>Failure to do so could result in delays and additional fees.</h2>
+    </div>
+    @for (int i = 0; i < Wro.Boxes.Count; i++)
+    {
+        <p style="page-break-before: always"></p>
+        <div class="bee-page-container">
+            <div class="bee-row bee-row-1" style="margin-top: 10px">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-image">
+                            <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[i].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-image">
+                            <img alt="" class="bee-right bee-autowidth" src="https://www.shipbob.com/wp-content/uploads/2019/11/logo-footer.svg" style="max-width:640px; width: 100px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-2" style="margin-top: 10px">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h1>Warehouse Receiving #@Wro.RequestID</h1>
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h1>Container: @(i+1) of 5</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-3">
+                <div class="bee-row-content" style="gap:55px;">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-paragraph">
+                            <div>
+                                <b>Destination:</b>
+                                <div>@Wro.DestinationAddressFirstLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressSecondLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressThirdLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressFourthLineForWroBoxLabel</div>
+                            </div>
+                            <div>
+                                <b>Phone:</b> @Wro.DestinationPhoneForWroBoxLabel
+                            </div>
+                            <div>
+                                <b>Email:</b> <a href="mailto:@Wro.DestinationEmailForWroBoxLabel">@Wro.DestinationEmailForWroBoxLabel</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-paragraph">
+                            <div>
+                                <b>Created:</b> @Wro.InsertDateForLabel
+                            </div>
+                            @if(Wro.HasExpectedDateOfArrival)
+                            {
+                                <div>
+                                    <b>Estimated Arrival Date:</b> @Wro.ExpectedDateOfArrivalForLabel
+                                </div>
+                            }
+                            <div>
+                                <b>From:</b> @Wro.UserCompanyForWroBoxLabel
+                            </div>
+                            <div>
+                                <b>Email:</b> <a href="mailto:@Wro.UserEmailForWroBoxLabel">@Wro.UserEmailForWroBoxLabel</a>
+                            </div>
+                            <div>
+                                <b>Type:</b> @Wro.BoxPackagingTypeName
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-4" style="margin-top: 30px;">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w12">
+                        <div class="bee-block bee-block-1 bee-image"><img alt="" class="bee-center bee-autowidth" src="@GetBarcode(Wro.Boxes[i].Number)" style="max-width:400px;" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-5">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w12">
+                        <div class="bee-block bee-block-1 bee-image"><img class="bee-center bee-autowidth" src="@GetQrcode(Wro.Boxes[i].Number)" style="max-width:300px;" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-6">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w12">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h3>PLEASE ATTACH THIS LABEL TO THE CONTAINER AND LEAVE THIS UNCOVERED </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="page-break-before: always"></p>
+        <div>
+            Imagen box shipping TODO
+        </div>
+        <p style="page-break-before: always"></p>
+        <div class="bee-page-container">
+            <div class="bee-row bee-row-0">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w12">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h1>DO NOT INCLUDE IN THE SHIPMENT</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-1" style="margin-top: 10px">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-image">
+                            <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[i].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-image">
+                            <img class="bee-right bee-autowidth" src="https://www.shipbob.com/wp-content/uploads/2019/11/logo-footer.svg" style="max-width:640px; width: 100px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-2" style="margin-top: 10px">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h1>Warehouse Receiving #@Wro.RequestID</h1>
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-heading">
+                            <h1>Container: @(i + 1) of 5</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-3">
+                <div class="bee-row-content" style="gap:55px;">
+                    <div class="bee-col bee-col-1 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-paragraph">
+                            <div>
+                                <b>Destination:</b>
+                                <div>@Wro.DestinationAddressFirstLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressSecondLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressThirdLineForWroBoxLabel</div>
+                                <div>@Wro.DestinationAddressFourthLineForWroBoxLabel</div>
+                            </div>
+                            <div>
+                                <b>Phone:</b> @Wro.DestinationPhoneForWroBoxLabel
+                            </div>
+                            <div>
+                                <b>Email:</b> <a href="mailto:@Wro.DestinationEmailForWroBoxLabel">@Wro.DestinationEmailForWroBoxLabel</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bee-col bee-col-2 bee-col-w6">
+                        <div class="bee-block bee-block-1 bee-paragraph">
+                            <div>
+                                <b>Created:</b> @Wro.InsertDateForLabel
+                            </div>
+                            @if (Wro.HasExpectedDateOfArrival)
+                            {
+                                <div>
+                                    <b>Estimated Arrival Date:</b> @Wro.ExpectedDateOfArrivalForLabel
+                                </div>
+                            }
+                            <div>
+                                <b>From:</b> @Wro.UserCompanyForWroBoxLabel
+                            </div>
+                            <div>
+                                <b>Email:</b> <a href="mailto:@Wro.UserEmailForWroBoxLabel">@Wro.UserEmailForWroBoxLabel</a>
+                            </div>
+                            <div>
+                                <b>Type:</b> @Wro.BoxPackagingTypeName
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bee-row bee-row-4" style="margin-top: 30px;">
+                <div class="bee-row-content">
+                    <div class="bee-col bee-col-1 bee-col-w12">
+                        <b style="font-size: 16px;">Packing Slip: 1 of 1</b>
+                        <table style="table-layout:fixed;direction:ltr;background-color:transparent;font-family:Arial, Helvetica, sans-serif;font-weight:400;color:#101112;text-align:left;letter-spacing:0px;width: 100%;border-collapse: collapse; border-spacing: 0; margin-top: 10px;">
+                            <thead style="background-color:#CCC;color:#101112;font-size:14px;line-height:120%;">
+                                <tr>
+                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 15%;">Product ID</th>
+                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 40%;">Product Name</th>
+                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 15%;">Lot Number</th>
+                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 17%;">Expiration Date</th>
+                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 13%;">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody style="font-size:14px;line-height:120%;">
+                                
+                                <tr>
+                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">3481497</td>
+                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">Test Product Only For 3DD ShipBob PPE Ran01 02</td>
+                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">1</td>
+                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">11/12/2025</td>
+                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">50</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</body>
+<style>
+    span {
+        font-size: 16px;
+        display: block;
+        margin-top: 8px;
+    }
+
+    .bee-page-container {
+        height: 994px;
+    }
+
+    .page1 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .bee-row,
+    .bee-row-content {
+        position: relative
+    }
+
+    .bee-row-7,
+    body {
+        background-color: #ffffff
+    }
+
+        .bee-row-1,
+        .bee-row-2,
+        .bee-row-3,
+        .bee-row-4,
+        .bee-row-5,
+        .bee-row-6,
+        .bee-row-7,
+        .bee-row-7 .bee-row-content {
+            background-repeat: no-repeat
+        }
+
+    body {
+        color: #000000;
+        font-family: Arial, Helvetica, sans-serif
+    }
+
+    .bee-row-3 .bee-col-1 .bee-block-1 a,
+    .bee-row-3 .bee-col-2 .bee-block-1 a,
+    a {
+        color: #7747FF
+    }
+
+    * {
+        box-sizing: border-box
+    }
+
+    body,
+    h1,
+    h3,
+    p {
+        margin: 0
+    }
+
+    .bee-row-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: flex
+    }
+
+        .bee-row-content .bee-col-w6 {
+            flex-basis: 50%
+        }
+
+        .bee-row-content .bee-col-w12 {
+            flex-basis: 100%
+        }
+
+    .bee-icon .bee-icon-label-right a {
+        text-decoration: none
+    }
+
+    .bee-image {
+        overflow: auto
+    }
+
+        .bee-image .bee-center {
+            margin: 0 auto
+        }
+
+        .bee-image .bee-right {
+            float: right
+        }
+
+    .bee-row-0 .bee-col-1 .bee-block-1,
+    .bee-row-1 .bee-col-1 .bee-block-1,
+    .bee-row-1 .bee-col-2 .bee-block-1,
+    .bee-row-4 .bee-col-1 .bee-block-1,
+    .bee-row-5 .bee-col-1 .bee-block-1 {
+        width: 100%
+    }
+
+    .bee-row-2 .bee-col-1 .bee-block-1 h1,
+    .bee-row-2 .bee-col-2 .bee-block-1 h1 {
+        font-size: 22px;
+        color: #000000;
+        direction: ltr;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 700;
+        letter-spacing: normal;
+        line-height: 120%
+    }
+
+    .bee-icon {
+        display: inline-block;
+        vertical-align: middle
+    }
+
+    .bee-icon .bee-content {
+        display: flex;
+        align-items: center
+    }
+
+    .bee-image img, .bee-image svg {
+        display: block;
+        width: 100%
+    }
+
+    .bee-table table {
+        border-collapse: collapse;
+        width: 100%
+    }
+
+    .bee-table table tbody,
+    .bee-table table thead {
+        vertical-align: top
+    }
+
+    .bee-table table td,
+    .bee-table table th {
+        padding: 10px;
+        word-break: break-word
+    }
+
+    .bee-paragraph {
+        overflow-wrap: anywhere
+    }
+
+    .bee-row-0 .bee-row-content,
+    .bee-row-1 .bee-row-content,
+    .bee-row-2 .bee-row-content,
+    .bee-row-3 .bee-row-content,
+    .bee-row-4 .bee-row-content,
+    .bee-row-5 .bee-row-content,
+    .bee-row-6 .bee-row-content {
+        background-repeat: no-repeat;
+        border-radius: 0;
+        color: #000000
+    }
+
+    .bee-row-0 .bee-col-1
+    .bee-row-1 .bee-col-1,
+    .bee-row-1 .bee-col-2,
+    .bee-row-2 .bee-col-1,
+    .bee-row-2 .bee-col-2,
+    .bee-row-3 .bee-col-1,
+    .bee-row-3 .bee-col-2,
+    .bee-row-4 .bee-col-1,
+    .bee-row-5 .bee-col-1,
+    .bee-row-6 .bee-col-1,
+    .bee-row-7 .bee-col-1 {
+        padding-bottom: 5px;
+        padding-top: 5px
+    }
+
+    .bee-row-2 .bee-col-1 .bee-block-1,
+    .bee-row-2 .bee-col-2 .bee-block-1,
+    .bee-row-6 .bee-col-1 .bee-block-1 {
+        padding: 10px;
+        text-align: center;
+        width: 100%
+    }
+
+    .bee-row-3 .bee-col-1 .bee-block-1,
+    .bee-row-3 .bee-col-2 .bee-block-1 {
+        padding: 10px
+    }
+
+    .bee-row-7 .bee-row-content {
+        color: #000000
+    }
+
+    .bee-row-7 .bee-col-1 .bee-block-1 {
+        color: #1e0e4b;
+        font-family: Inter, sans-serif;
+        font-size: 15px;
+        padding-bottom: 5px;
+        padding-top: 5px;
+        text-align: center
+    }
+
+    .bee-row-2 .bee-col-1 .bee-block-1 h1 {
+        text-align: left
+    }
+
+    .bee-row-2 .bee-col-2 .bee-block-1 h1 {
+        text-align: right
+    }
+
+    .bee-row-3 .bee-col-1 .bee-block-1,
+    .bee-row-3 .bee-col-2 .bee-block-1 {
+        color: #101112;
+        direction: ltr;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 120%;
+        text-align: left
+    }
+
+    .bee-row-3 .bee-col-1 .bee-block-1 p:not(:last-child),
+    .bee-row-3 .bee-col-2 .bee-block-1 p:not(:last-child) {
+        margin-bottom: 16px
+    }
+
+    .bee-row-7 .bee-col-1 .bee-block-1 .bee-icon-image {
+        padding: 5px 6px 5px 5px
+    }
+
+    .bee-row-7 .bee-col-1 .bee-block-1 .bee-icon:not(.bee-icon-first) .bee-content {
+        margin-left: 0
+    }
+
+    .bee-row-7 .bee-col-1 .bee-block-1 .bee-icon::not(.bee-icon-last) .bee-content {
+        margin-right: 0
+    }
+
+    .bee-row-0 .bee-col-1 .bee-block-1 h1 {
+        color: #000000;
+        direction: ltr;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: normal;
+        line-height: 120%;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .bee-row-6 .bee-col-1 .bee-block-1 h3 {
+        color: #000000;
+        direction: ltr;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: normal;
+        line-height: 120%;
+        text-align: center;
+    }
+</style>
