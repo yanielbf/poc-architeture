@@ -12,16 +12,17 @@
             _converter.RenderingOptions.MarginBottom = 7;
         }
 
-        public override void SaveAsFileFromHtml(string html, string path)
+        public override Task<string> SaveAsFileFromHtml(string html, string path)
         {
             var pdf = _converter.RenderHtmlAsPdf(html);
             pdf.SaveAs(path);
+            return Task.FromResult(path);
         }
 
-        public override byte[] SaveAsDataBytesFromHtml(string html)
+        public override Task<byte[]> SaveAsDataBytesFromHtml(string html)
         {
             var pdf = _converter.RenderHtmlAsPdf(html);
-            return pdf.BinaryData;
+            return Task.FromResult(pdf.BinaryData);
         }
     }
 }

@@ -2,8 +2,8 @@
 {
     public abstract class BasePdfGenerator
     {
-        public abstract void SaveAsFileFromHtml(string html, string path);
+        public abstract Task SaveAsFileFromHtml(string html, string path);
 
-        public abstract byte[] SaveAsDataBytesFromHtml(string html);
+        public abstract Task<byte[]> SaveAsDataBytesFromHtml(string html);
     }
 }

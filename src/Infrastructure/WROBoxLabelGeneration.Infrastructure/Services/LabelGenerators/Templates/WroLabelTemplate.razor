@@ -1,32 +1,76 @@
 ﻿@using Microsoft.AspNetCore.Html
 @using WROBoxLabelGeneration.Models
+@using WROBoxLabelGeneration.SharedKernel
+@using WROBoxLabelGeneration.SharedKernel.Extensions
 @inject GeneratorQrBarcodeService GeneratorQrBarcodeService
 
 @code {
     [Parameter]
     public Wro Wro { get; set; }
+    public List<string> BoxShippingLabels = new List<string>();
+    public Dictionary<int, List<List<(int ProductId, string ProductName, string LotNumber, string ExpirationDate, int Quantity)>>> ProductsSeparatedByBox
+        = new Dictionary<int, List<List<(int ProductId, string ProductName, string LotNumber, string ExpirationDate, int Quantity)>>>();
 
     protected override void OnInitialized()
-    {}
+    {
+        FillBoxShippingLabels();
+        FillProductsBox();
+    }
+
+    public void FillBoxShippingLabels()
+    {
+        for (int i = 0; i < Wro.Boxes.Count; i++)
+        {
+            try
+            {
+                string imageBase64 = string.Empty;
+                if (Wro.Boxes[i].ShippingLabelUrl != null)
+                {
+                    imageBase64 = GeneratorQrBarcodeService.ImageUrl64Image(Wro.Boxes[i].ShippingLabelUrl);
+                }
+                BoxShippingLabels.Add(imageBase64);
+            }
+            catch (Exception ex)
+            {
+                BoxShippingLabels.Add($"Url: {Wro.Boxes[i].ShippingLabelUrl}. Error: {ex.Message}");
+            }
+        }    
+    }
+
+    public void FillProductsBox()
+    {
+        for (int i = 0; i < Wro.Boxes.Count; i++)
+        {
+            // var fakeProducts = new List<(int ProductId, string ProductName, string LotNumber, string ExpirationDate, int Quantity)>();
+            // var random = new Random();
+            // for (int d = 1; d <= 20; d++)
+            // {
+            //     var productId = d;
+            //     var productName = $"Product {random.Next(1, 100)}";
+            //     var lotNumber = $"LOT-{random.Next(1000, 9999)}";
+            //     var expirationDate = random.Next(0, 2) == 0 ? (DateTime?)null : DateTime.Now.AddDays(random.Next(30, 365));
+            //     var quantity = random.Next(1, 500);
+
+            //     fakeProducts.Add((productId, productName, lotNumber, expirationDate.HasValue ? expirationDate.Value.ToString(ConstantStrings.FormatDate) : string.Empty, quantity));
+            // }
+            // ProductsSeparatedByBox[i] = fakeProducts.ChunkAsLists(10);
+            ProductsSeparatedByBox[i] = Wro.Boxes[i].Products.ChunkAsLists(10);
+        }
+    }
 
     public string GetBarcodeTop(int boxNumber)
     {
-        return @GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}", false, true);
+        return GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}", false, true);
     }
 
     public string GetBarcode(int boxNumber)
     {
-        return @GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}");
+        return GeneratorQrBarcodeService.BarcodeBase64Image($"{Wro.RequestID} {boxNumber}");
     }
 
     public string GetQrcode(int boxNumber)
     {
-        return @GeneratorQrBarcodeService.QrCodeBase64Image($"{Wro.RequestID} {boxNumber}");
-    }
-
-    public string GetImageUrl(string url)
-    {
-        return @GeneratorQrBarcodeService.ImageUrl64Image(url);
+        return GeneratorQrBarcodeService.QrCodeBase64Image($"{Wro.RequestID} {boxNumber}");
     }
 }
 
@@ -38,7 +82,7 @@
         </h1>
         <h2>Failure to do so could result in delays and additional fees.</h2>
     </div>
-    @for (int i = 0; i < Wro.Boxes.Count; i++)
+    @for (int a = 0; a < Wro.Boxes.Count; a++)
     {
         <p style="page-break-before: always"></p>
         <div class="bee-page-container">
@@ -46,7 +90,7 @@
                 <div class="bee-row-content">
                     <div class="bee-col bee-col-1 bee-col-w6">
                         <div class="bee-block bee-block-1 bee-image">
-                            <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[i].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
+                            <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[a].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
                         </div>
                     </div>
                     <div class="bee-col bee-col-2 bee-col-w6">
@@ -65,7 +109,7 @@
                     </div>
                     <div class="bee-col bee-col-2 bee-col-w6">
                         <div class="bee-block bee-block-1 bee-heading">
-                            <h1>Container: @(i+1) of 5</h1>
+                            <h1>Container: @(a + 1) of @Wro.Boxes.Count</h1>
                         </div>
                     </div>
                 </div>
@@ -116,14 +160,14 @@
             <div class="bee-row bee-row-4" style="margin-top: 30px;">
                 <div class="bee-row-content">
                     <div class="bee-col bee-col-1 bee-col-w12">
-                        <div class="bee-block bee-block-1 bee-image"><img alt="" class="bee-center bee-autowidth" src="@GetBarcode(Wro.Boxes[i].Number)" style="max-width:400px;" /></div>
+                        <div class="bee-block bee-block-1 bee-image"><img alt="" class="bee-center bee-autowidth" src="@GetBarcode(Wro.Boxes[a].Number)" style="max-width:400px;" /></div>
                     </div>
                 </div>
             </div>
             <div class="bee-row bee-row-5">
                 <div class="bee-row-content">
                     <div class="bee-col bee-col-1 bee-col-w12">
-                        <div class="bee-block bee-block-1 bee-image"><img class="bee-center bee-autowidth" src="@GetQrcode(Wro.Boxes[i].Number)" style="max-width:300px;" /></div>
+                        <div class="bee-block bee-block-1 bee-image"><img class="bee-center bee-autowidth" src="@GetQrcode(Wro.Boxes[a].Number)" style="max-width:300px;" /></div>
                     </div>
                 </div>
             </div>
@@ -137,124 +181,136 @@
                 </div>
             </div>
         </div>
-        @if (!string.IsNullOrEmpty(Wro.Boxes[i].ShippingLabelUrl))
+        @if (!string.IsNullOrEmpty(BoxShippingLabels[a]))
         {
             <p style="page-break-before: always"></p>
             <div>
-                <img class="bee-center bee-autowidth" src="@GetImageUrl(Wro.Boxes[i].ShippingLabelUrl)" style="max-width:300px;" />
+                @if (@BoxShippingLabels[a].Contains("data:image/png;base64"))
+                {
+                    <img class="bee-center bee-autowidth" src="@BoxShippingLabels[a]" style="max-width:300px;" />
+                } 
+                else
+                {
+                    <p>@BoxShippingLabels[a]</p>
+                }
             </div>
         }
-        <p style="page-break-before: always"></p>
-        <div class="bee-page-container">
-            <div class="bee-row bee-row-0">
-                <div class="bee-row-content">
-                    <div class="bee-col bee-col-1 bee-col-w12">
-                        <div class="bee-block bee-block-1 bee-heading">
-                            <h1>DO NOT INCLUDE IN THE SHIPMENT</h1>
+        @for (int b = 0; b < ProductsSeparatedByBox[a].Count(); b++)
+        {
+            <p style="page-break-before: always"></p>
+            <div class="bee-page-container">
+                <div class="bee-row bee-row-0">
+                    <div class="bee-row-content">
+                        <div class="bee-col bee-col-1 bee-col-w12">
+                            <div class="bee-block bee-block-1 bee-heading">
+                                <h1>DO NOT INCLUDE IN THE SHIPMENT</h1>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bee-row bee-row-1" style="margin-top: 10px">
-                <div class="bee-row-content">
-                    <div class="bee-col bee-col-1 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-image">
-                            <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[i].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
+                <div class="bee-row bee-row-1" style="margin-top: 10px">
+                    <div class="bee-row-content">
+                        <div class="bee-col bee-col-1 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-image">
+                                <img class="bee-autowidth" src="@GetBarcodeTop(Wro.Boxes[a].Number)" , false, true)" style="max-width:300px; margin-left: 14px;" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="bee-col bee-col-2 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-image">
-                            <img class="bee-right bee-autowidth" src="https://www.shipbob.com/wp-content/uploads/2019/11/logo-footer.svg" style="max-width:640px; width: 100px;" />
+                        <div class="bee-col bee-col-2 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-image">
+                                <img class="bee-right bee-autowidth" src="https://www.shipbob.com/wp-content/uploads/2019/11/logo-footer.svg" style="max-width:640px; width: 100px;" />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bee-row bee-row-2" style="margin-top: 10px">
-                <div class="bee-row-content">
-                    <div class="bee-col bee-col-1 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-heading">
-                            <h1>Warehouse Receiving #@Wro.RequestID</h1>
+                <div class="bee-row bee-row-2" style="margin-top: 10px">
+                    <div class="bee-row-content">
+                        <div class="bee-col bee-col-1 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-heading">
+                                <h1>Warehouse Receiving #@Wro.RequestID</h1>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bee-col bee-col-2 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-heading">
-                            <h1>Container: @(i + 1) of 5</h1>
+                        <div class="bee-col bee-col-2 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-heading">
+                                <h1>Container: @(a + 1) of @Wro.Boxes.Count</h1>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bee-row bee-row-3">
-                <div class="bee-row-content" style="gap:55px;">
-                    <div class="bee-col bee-col-1 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-paragraph">
-                            <div>
-                                <b>Destination:</b>
-                                <div>@Wro.DestinationAddressFirstLineForWroBoxLabel</div>
-                                <div>@Wro.DestinationAddressSecondLineForWroBoxLabel</div>
-                                <div>@Wro.DestinationAddressThirdLineForWroBoxLabel</div>
-                                <div>@Wro.DestinationAddressFourthLineForWroBoxLabel</div>
-                            </div>
-                            <div>
-                                <b>Phone:</b> @Wro.DestinationPhoneForWroBoxLabel
-                            </div>
-                            <div>
-                                <b>Email:</b> <a href="mailto:@Wro.DestinationEmailForWroBoxLabel">@Wro.DestinationEmailForWroBoxLabel</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bee-col bee-col-2 bee-col-w6">
-                        <div class="bee-block bee-block-1 bee-paragraph">
-                            <div>
-                                <b>Created:</b> @Wro.InsertDateForLabel
-                            </div>
-                            @if (Wro.HasExpectedDateOfArrival)
-                            {
+                <div class="bee-row bee-row-3">
+                    <div class="bee-row-content" style="gap:55px;">
+                        <div class="bee-col bee-col-1 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-paragraph">
                                 <div>
-                                    <b>Estimated Arrival Date:</b> @Wro.ExpectedDateOfArrivalForLabel
+                                    <b>Destination:</b>
+                                    <div>@Wro.DestinationAddressFirstLineForWroBoxLabel</div>
+                                    <div>@Wro.DestinationAddressSecondLineForWroBoxLabel</div>
+                                    <div>@Wro.DestinationAddressThirdLineForWroBoxLabel</div>
+                                    <div>@Wro.DestinationAddressFourthLineForWroBoxLabel</div>
                                 </div>
-                            }
-                            <div>
-                                <b>From:</b> @Wro.UserCompanyForWroBoxLabel
+                                <div>
+                                    <b>Phone:</b> @Wro.DestinationPhoneForWroBoxLabel
+                                </div>
+                                <div>
+                                    <b>Email:</b> <a href="mailto:@Wro.DestinationEmailForWroBoxLabel">@Wro.DestinationEmailForWroBoxLabel</a>
+                                </div>
                             </div>
-                            <div>
-                                <b>Email:</b> <a href="mailto:@Wro.UserEmailForWroBoxLabel">@Wro.UserEmailForWroBoxLabel</a>
-                            </div>
-                            <div>
-                                <b>Type:</b> @Wro.BoxPackagingTypeName
+                        </div>
+                        <div class="bee-col bee-col-2 bee-col-w6">
+                            <div class="bee-block bee-block-1 bee-paragraph">
+                                <div>
+                                    <b>Created:</b> @Wro.InsertDateForLabel
+                                </div>
+                                @if (Wro.HasExpectedDateOfArrival)
+                                {
+                                    <div>
+                                        <b>Estimated Arrival Date:</b> @Wro.ExpectedDateOfArrivalForLabel
+                                    </div>
+                                }
+                                <div>
+                                    <b>From:</b> @Wro.UserCompanyForWroBoxLabel
+                                </div>
+                                <div>
+                                    <b>Email:</b> <a href="mailto:@Wro.UserEmailForWroBoxLabel">@Wro.UserEmailForWroBoxLabel</a>
+                                </div>
+                                <div>
+                                    <b>Type:</b> @Wro.BoxPackagingTypeName
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bee-row bee-row-4" style="margin-top: 30px;">
-                <div class="bee-row-content">
-                    <div class="bee-col bee-col-1 bee-col-w12">
-                        <b style="font-size: 16px;">Packing Slip: 1 of 1</b>
-                        <table style="table-layout:fixed;direction:ltr;background-color:transparent;font-family:Arial, Helvetica, sans-serif;font-weight:400;color:#101112;text-align:left;letter-spacing:0px;width: 100%;border-collapse: collapse; border-spacing: 0; margin-top: 10px;">
-                            <thead style="background-color:#CCC;color:#101112;font-size:14px;line-height:120%;">
-                                <tr>
-                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 15%;">Product ID</th>
-                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 40%;">Product Name</th>
-                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 15%;">Lot Number</th>
-                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 17%;">Expiration Date</th>
-                                    <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 13%;">Quantity</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size:14px;line-height:120%;">
-                                
-                                <tr>
-                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">3481497</td>
-                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">Test Product Only For 3DD ShipBob PPE Ran01 02</td>
-                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">1</td>
-                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">11/12/2025</td>
-                                    <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">50</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="bee-row bee-row-4" style="margin-top: 30px;">
+                    <div class="bee-row-content">
+                        <div class="bee-col bee-col-1 bee-col-w12">
+                            <b style="font-size: 16px;">Packing Slip: @(b + 1) of @ProductsSeparatedByBox[a].Count()</b>
+                            <table style="table-layout:fixed;direction:ltr;background-color:transparent;font-family:Arial, Helvetica, sans-serif;font-weight:400;color:#101112;text-align:left;letter-spacing:0px;width: 100%;border-collapse: collapse; border-spacing: 0; margin-top: 10px;">
+                                <thead style="background-color:#CCC;color:#101112;font-size:14px;line-height:120%;">
+                                    <tr>
+                                        <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 13%;">Product ID</th>
+                                        <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 44%;">Product Name</th>
+                                        <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 15%;">Lot Number</th>
+                                        <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 17%;">Expiration Date</th>
+                                        <th style="font-weight:700;border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px; width: 11%;">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody style="font-size:14px;line-height:120%;">
+                                    @for (int c = 0; c < ProductsSeparatedByBox[a][b].Count(); c++)
+                                    {
+                                        <tr>
+                                            <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">@ProductsSeparatedByBox[a][b][c].ProductId</td>
+                                            <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">@ProductsSeparatedByBox[a][b][c].ProductName</td>
+                                            <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">@ProductsSeparatedByBox[a][b][c].LotNumber</td>
+                                            <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">@ProductsSeparatedByBox[a][b][c].ExpirationDate</td>
+                                            <td style="border-top:1px solid #101112;border-right:1px solid #101112;border-bottom:1px solid #101112;border-left:1px solid #101112; padding: 10px;">@ProductsSeparatedByBox[a][b][c].Quantity</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
     }
 </body>
 <style>

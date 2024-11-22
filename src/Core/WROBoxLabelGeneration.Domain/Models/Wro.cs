@@ -144,7 +144,7 @@ namespace WROBoxLabelGeneration.Models
                     var inventory = wroid.Inventory;
                     var warehouseReceivingOrderInventoryPackaging = wroid.WroInventoryPackagings.Where(wroip => wroip.WroPackagingDetail.BoxNumber == boxNumber);
                     var itemQuantity = warehouseReceivingOrderInventoryPackaging.Sum(wroip => wroip.ItemQuantity);
-                    return (wroid.InventoryId, inventory.ItemName, wroid.LotNumber, wroid.LotDate, itemQuantity);
+                    return (wroid.InventoryId, inventory.ItemName, wroid.LotNumber, wroid.LotDate.HasValue ? wroid.LotDate.Value.ToString(ConstantStrings.FormatDate) : string.Empty, itemQuantity);
                 }).ToList();
                 return new Box(boxNumber, products);
             }).ToList();
@@ -180,5 +180,5 @@ namespace WROBoxLabelGeneration.Models
         }
     }
 
-    public record Box(int Number, List<(int ProductId, string ProductName, string LotNumber, DateTime? ExpirationDate, int Quantity)> Products, int? PackagingDetailsId = null, string? ShippingLabelUrl = null);
+    public record Box(int Number, List<(int ProductId, string ProductName, string LotNumber, string ExpirationDate, int Quantity)> Products, int? PackagingDetailsId = null, string? ShippingLabelUrl = null);
 }

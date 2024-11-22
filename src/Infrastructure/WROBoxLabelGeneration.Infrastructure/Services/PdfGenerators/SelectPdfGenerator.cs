@@ -19,17 +19,18 @@ namespace WROBoxLabelGeneration.Infrastructure.Services.PdfGenerators
             _converter.Options.MarginRight = 30;
         }
 
-        public override void SaveAsFileFromHtml(string html, string path)
+        public override Task<string> SaveAsFileFromHtml(string html, string path)
         {
             SelectPdf.PdfDocument pdf = _converter.ConvertHtmlString(html);
             pdf.Save(path);
             pdf.Close();
+            return Task.FromResult(path);
         }
 
-        public override byte[] SaveAsDataBytesFromHtml(string html)
+        public override Task<byte[]> SaveAsDataBytesFromHtml(string html)
         {
             SelectPdf.PdfDocument pdf = _converter.ConvertHtmlString(html);
-            return pdf.Save();
+            return Task.FromResult(pdf.Save());
         }
     }
 }

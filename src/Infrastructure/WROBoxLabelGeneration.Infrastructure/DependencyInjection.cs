@@ -77,6 +77,7 @@ namespace WROBoxLabelGeneration.Infrastructure
             // Pdf Generators
             services.AddTransient<IronPdfGenerator>();
             services.AddTransient<SelectPdfGenerator>();
+            services.AddTransient<PuppeterPdfGenerator>();
             services.AddTransient<BasePdfGenerator>(serviceProvider =>
             {
                 var appSettings = serviceProvider.GetService<AppSettings>();
@@ -92,6 +93,7 @@ namespace WROBoxLabelGeneration.Infrastructure
                 {
                     "iron-pdf" => serviceProvider.GetService<IronPdfGenerator>() ?? throw new KeyNotFoundException($"No class IronPdfGenerator found"),
                     "select-pdf" => serviceProvider.GetService<SelectPdfGenerator>() ?? throw new KeyNotFoundException($"No class SelectPdfGenerator found"),
+                    "puppeter-pdf" => serviceProvider.GetService<PuppeterPdfGenerator>() ?? throw new KeyNotFoundException($"No class PuppeterPdfGenerator found"),
                     _ => throw new KeyNotFoundException($"No pdf generator found for key {key}")
                 };
             });

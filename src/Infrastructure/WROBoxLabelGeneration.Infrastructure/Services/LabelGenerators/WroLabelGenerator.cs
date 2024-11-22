@@ -21,7 +21,7 @@ namespace WROBoxLabelGeneration.Infrastructure.Services.LabelGenerators
                 var output = await _render.RenderComponentAsync<WroLabelTemplate>(ParameterView.FromDictionary(dictionary));
                 return output.ToHtmlString();
             });
-            return _pdfGenerator.SaveAsDataBytesFromHtml(_html);
+            return await _pdfGenerator.SaveAsDataBytesFromHtml(_html);
         }
 
         public override async Task CreatePdfAsFile(object data, string path)
@@ -31,7 +31,7 @@ namespace WROBoxLabelGeneration.Infrastructure.Services.LabelGenerators
                 var output = await _render.RenderComponentAsync<WroLabelTemplate>();
                 return output.ToHtmlString();
             });
-            _pdfGenerator.SaveAsFileFromHtml(_html, path);
+            await _pdfGenerator.SaveAsFileFromHtml(_html, path);
         }
     }
 }
